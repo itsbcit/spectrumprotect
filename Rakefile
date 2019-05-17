@@ -68,3 +68,33 @@ task :push do
     sh "docker push #{registry}/#{org_name}/#{image_name}:#{tag}"
   end
 end
+
+desc "OpenShift login"
+task :oc_login do
+  sh "oc project" do | success, exit_code |
+    sh "oc login" unless success
+  end
+end
+
+desc "Openshift task cleanup"
+task :oc_cleanup do
+  Rake::Task[:oc_login].invoke
+  sh "oc delete deploymentconfig backup --ignore-not-found --wait"
+end
+
+desc "Configure backup service account"
+task :serviceaccount do
+  Rake::Task[:oc_login].invoke
+  sh "oc get serviceaccount backup" do | success, exit_code |
+    sh "oc create serviceaccount backup" unless success
+  end
+
+  sh "oc adm policy add-role-to-user admin -z backup"
+end
+
+desc "Run backup in current project"
+task :backup do
+  Rake::Task[:oc_login].invoke
+  Rake::Task[:oc_cleanup].invoke
+  #sh "oc oc run backup --image=#{registry}/#{org_name}/#{image_name}:#{version} "
+end
