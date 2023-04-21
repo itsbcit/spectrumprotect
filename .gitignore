@@ -1,2 +1,4 @@
 *-TIV-TSMBAC-LinuxX86.tar
 rpms/
+.build_id
+lib
