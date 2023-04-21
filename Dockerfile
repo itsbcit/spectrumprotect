@@ -1,19 +1,35 @@
-FROM bcit/openshift-okdcli:3.11
+FROM bcit.io/alpine:latest as rpms
 # vim: syntax=dockerfile
 
-ENV HOME /tmp
+WORKDIR /src
 
-LABEL maintainer="jesse_weisner@bcit.ca"
-LABEL version="7.1.8.0"
+RUN wget -O - https://public.dhe.ibm.com/storage/tivoli-storage-management/maintenance/client/v8r1/Linux/LinuxX86/BA/v8117/8.1.17.0-TIV-TSMBAC-LinuxX86.tar \
+  | tar x
 
-COPY rpms /rpms
+RUN ls -al
+
+
+
+FROM bcit.io/almalinux:9
+
+LABEL maintainer="jesse@weisner.ca, chriswood.ca@gmail.com"
+LABEL build_id="1682099205"
+
+WORKDIR /rpms
+COPY --from=rpms /src/gskcrypt64-*.x86_64.rpm /rpms/
+COPY --from=rpms /src/gskssl64-*.x86_64.rpm /rpms/
+COPY --from=rpms /src/TIVsm-BA.x86_64.rpm /rpms/
+COPY --from=rpms /src/TIVsm-API64.x86_64.rpm /rpms/
+
+RUN ls -alh
 
 RUN yum -y install \
-    /rpms/gskcrypt64-*.rpm \
-    /rpms/gskssl64-*.rpm \
-    /rpms/TIVsm-BA.x86_64.rpm \
-    /rpms/TIVsm-API64.x86_64.rpm
+  /rpms/gskcrypt64-*.rpm \
+  /rpms/gskssl64-*.rpm \
+  /rpms/TIVsm-BA.x86_64.rpm \
+  /rpms/TIVsm-API64.x86_64.rpm
 
+ENV HOME /tmp
 ENV DSM_TCPSERVERADDRESS tsm.example.com
 ENV DSM_NODE backupclient
 ENV DSM_PASSWORD backuppassword
@@ -36,4 +52,4 @@ VOLUME /data
 
 WORKDIR /data
 
-CMD ["/usr/bin/dsmc", "incr"]
+# CMD ["/usr/bin/dsmc", "incr"]
