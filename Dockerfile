@@ -13,7 +13,7 @@ RUN ls -al
 FROM bcit.io/almalinux:9
 
 LABEL maintainer="jesse@weisner.ca, chriswood.ca@gmail.com"
-LABEL build_id="1682099205"
+LABEL build_id="1682459634"
 
 WORKDIR /rpms
 COPY --from=rpms /src/gskcrypt64-*.x86_64.rpm /rpms/
@@ -52,4 +52,4 @@ VOLUME /data
 
 WORKDIR /data
 
-# CMD ["/usr/bin/dsmc", "incr"]
+CMD ["/usr/bin/dsmc", "incr"]
