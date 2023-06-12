@@ -8,12 +8,10 @@ RUN wget -O - https://public.dhe.ibm.com/storage/tivoli-storage-management/maint
 
 RUN ls -al
 
-
-
 FROM bcit.io/almalinux:9
 
 LABEL maintainer="jesse@weisner.ca, chriswood.ca@gmail.com"
-LABEL build_id="1682459634"
+LABEL build_id="1686599543"
 
 WORKDIR /rpms
 COPY --from=rpms /src/gskcrypt64-*.x86_64.rpm /rpms/
@@ -45,10 +43,12 @@ COPY 90-dsm.opt.sh \
 
 RUN mkdir /data \
  && chown 0:0 /data /opt/tivoli/tsm/client/ba/bin \
- && chmod 775 /data /opt/tivoli/tsm/client/ba/bin
+ && chmod 775 /data /opt/tivoli/tsm/client/ba/bin \
+ && ln -sf /dev/stdout /opt/tivoli/tsm/dsmsched.log \
+ && ln -sf /dev/stderr /opt/tivoli/tsm/error.log
 
-VOLUME /tmp
 VOLUME /data
+VOLUME /etc/adsm
 
 WORKDIR /data
 

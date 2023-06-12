@@ -8,8 +8,6 @@ RUN wget -O - <%= image.vars['spectrumprotect_url'] %> \
 
 RUN ls -al
 
-
-
 FROM bcit.io/almalinux:9
 
 <%= snippet('labels', binding) -%>
@@ -44,10 +42,12 @@ COPY 90-dsm.opt.sh \
 
 RUN mkdir /data \
  && chown 0:0 /data /opt/tivoli/tsm/client/ba/bin \
- && chmod 775 /data /opt/tivoli/tsm/client/ba/bin
+ && chmod 775 /data /opt/tivoli/tsm/client/ba/bin \
+ && ln -sf /dev/stdout /opt/tivoli/tsm/dsmsched.log \
+ && ln -sf /dev/stderr /opt/tivoli/tsm/error.log
 
-VOLUME /tmp
 VOLUME /data
+VOLUME /etc/adsm
 
 WORKDIR /data
 

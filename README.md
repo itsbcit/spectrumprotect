@@ -35,6 +35,10 @@ podman run \
   -e DSM_NODE=backupclient \
   -e DSM_PASSWORD=backuppassword \
   --mount type=bind,source=/var/to/backup,target=/data,relabel=shared \
+  --mount type=bind,source=/path/to/certs/dsmcert.idx,target=/opt/tivoli/tsm/client/ba/bin/dsmcert.idx,relabel=shared \
+  --mount type=bind,source=/path/to/certs/dsmcert.kdb,target=/opt/tivoli/tsm/client/ba/bin/dsmcert.kdb,relabel=shared \
+  --mount type=bind,source=/path/to/certs/dsmcert.sth,target=/opt/tivoli/tsm/client/ba/bin/dsmcert.sth,relabel=shared \
+  --volume tsm-certs:/etc/adsm:z  \
   bcit.io/spectrumprotect:latest
 ```
 
@@ -54,6 +58,7 @@ ExecStart=podman run \
   -e DSM_NODE=backupclient \
   -e DSM_PASSWORD=backuppassword \
   --mount type=bind,source=/var/to/backup,target=/data,relabel=shared \
+  --mount type=volume,source=tsm-certs,target=/etc/adsm \
   bcit.io/spectrumprotect:latest
 ```
 
@@ -75,3 +80,11 @@ OnUnitInactiveSec=60min
 [Install]
 WantedBy=timers.target
 ```
+
+## troubleshooting
+
+### ANS1592E Failed to initialize SSL protocol
+
+dsmc creates a relationship with the server when first run. The client encrypted certificates for this are stored in `/etc/adsm/`. If the volume is moved/lost, just run `dsmadmc` to login again and regenerate these certs.
+
+addtionally dsmcert.idx/kdb/sth are the encrypted server certificates (self signed), these are genered the first time a client is connected to TSM when security mode is TRANSITIONAL, after connecting the server sets it to STRICT and will not redistribute these unless `dsmadmc` is run. Bind mount files individually these from another host as they are in a dir (`/opt/tivoli/tsm/client/ba/bin/`) with other files so it cannot be a bind mount or volume.

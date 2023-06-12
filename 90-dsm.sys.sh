@@ -9,4 +9,6 @@ servername  ${DSM_TCPSERVERADDRESS}
     password  ${DSM_PASSWORD}
     tcpport  ${DSM_TCPPORT}
     tcpserveraddress  ${DSM_TCPSERVERADDRESS}
+    errorlogname /opt/tivoli/tsm/error.log
+    SCHEDLOGName /opt/tivoli/tsm/dsmsched.log
 EOF
